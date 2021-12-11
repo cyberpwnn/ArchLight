@@ -164,56 +164,62 @@ public class ArchLight implements Ticked {
             updateWattage();
         }
 
-        if(targetState != null)
-        {
-            targetState.setTransitiontime(100);
-        }
-
         State s = getState();
 
         if(!s.equals(targetState))
         {
-            if(ArchLightServer.instance.getTickList().liop()) {
-                String k = "[" + light.getName() + "]: ";
+            if(ArchLightServer.instance.getActivePolicy().isMutable(this))
+            {
+                if(ArchLightServer.instance.getTickList().liop()) {
+                    String k = "[" + light.getName() + "]: ";
 
-                if(s.getOn() != targetState.getOn()) {
-                    if(targetState.getOn()) {
-                        L.i(k + "Turned On");
-                    } else {
-                        L.i(k + "Turned Off");
+                    if(s.getOn() != targetState.getOn()) {
+                        if(targetState.getOn()) {
+                            L.i(k + "Turned On");
+                        } else {
+                            L.i(k + "Turned Off");
+                        }
                     }
-                }
 
-                if(!Objects.equals(s.getBri(), targetState.getBri())) {
-                    L.i(k + "Brightness " + s.getBri() + " -> " + targetState.getBri());
-                }
+                    if(!Objects.equals(s.getBri(), targetState.getBri())) {
+                        L.i(k + "Brightness " + s.getBri() + " -> " + targetState.getBri());
+                    }
 
-                if(!Objects.equals(s.getCt(), targetState.getCt())) {
-                    L.i(k + "Ct " + s.getCt() + " -> " + targetState.getCt());
-                }
+                    if(!Objects.equals(s.getCt(), targetState.getCt())) {
+                        L.i(k + "Ct " + s.getCt() + " -> " + targetState.getCt());
+                    }
 
-                if(!Objects.equals(s.getHue(), targetState.getHue())) {
-                    L.i(k + "Hue " + s.getHue() + " -> " + targetState.getHue());
-                }
+                    if(!Objects.equals(s.getHue(), targetState.getHue())) {
+                        L.i(k + "Hue " + s.getHue() + " -> " + targetState.getHue());
+                    }
 
-                if(!Objects.equals(s.getSat(), targetState.getSat())) {
-                    L.i(k + "Saturation " + s.getSat() + " -> " + targetState.getSat());
-                }
+                    if(!Objects.equals(s.getSat(), targetState.getSat())) {
+                        L.i(k + "Saturation " + s.getSat() + " -> " + targetState.getSat());
+                    }
 
-                if(!Objects.equals(s.getScene(), targetState.getScene())) {
-                    L.i(k + "Scene " + s.getScene() + " -> " + targetState.getScene());
-                }
+                    if(!Objects.equals(s.getScene(), targetState.getScene())) {
+                        L.i(k + "Scene " + s.getScene() + " -> " + targetState.getScene());
+                    }
 
-                if(!Objects.equals(s.getAlert(), targetState.getAlert())) {
-                    L.i(k + "Alert " + s.getAlert() + " -> " + targetState.getAlert());
-                }
+                    if(!Objects.equals(s.getAlert(), targetState.getAlert())) {
+                        L.i(k + "Alert " + s.getAlert() + " -> " + targetState.getAlert());
+                    }
 
-                light.setState(targetState);
-                knownState = new State(targetState);
-                long lt = M.ms() - lastChange;
-                wh += w * ((double) lt / 1000D / 60D / 60D);
-                lastChange = M.ms();
-                updateWattage();
+                    if(targetState != null)
+                    {
+                        long lt = M.ms() - lastChange;
+                        int min = 1000;
+                        int max = 7500;
+                        targetState.setTransitiontime((int) (Math.max(min, Math.min(lt, max)) / 10));
+                    }
+
+                    light.setState(targetState);
+                    knownState = new State(targetState);
+                    long lt = M.ms() - lastChange;
+                    wh += w * ((double) lt / 1000D / 60D / 60D);
+                    lastChange = M.ms();
+                    updateWattage();
+                }
             }
         }
     }

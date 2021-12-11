@@ -26,9 +26,12 @@ public class ArchLightServer
     private TickList tickList;
     private boolean lookingForBridges = false;
     private boolean connectingToBridges = false;
+    private LightPolicy activePolicy = (__) -> true;
 
     public ArchLightServer()
     {
+        instance = this;
+        activePolicy = (light) -> light != null && light.getLight() != null && light.getLight().getName().equals("Dan Room");
         tickList = new TickList();
         tickList.addBasic(this::connectToBridges, 5000);
         tickList.addBasic(this::lookForBridges, 60000);
@@ -46,8 +49,17 @@ public class ArchLightServer
             }
         };
         ticker.start();
-
-        tickList.addBasic(() -> forEachLight(i -> i.noAlert().noEffect().setColor(Color.WHITE)), 10000);
+//        tickList.addBasic(() -> {
+//            L.i("TICK");
+//            forEachLight((i) -> {
+//                if(activePolicy.isMutable(i))
+//                {
+//                    i.setBrightness(1);
+//
+//                    i.noEffect().setColor(Color.getHSBColor(RNG.r.f(0, 1), 1, 1));
+//                }
+//            });
+//        }, 500);
     }
 
     public void shaveWatts(double watts)
